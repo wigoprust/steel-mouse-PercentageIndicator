@@ -18,10 +18,16 @@ def render_battery_icon(percent: int, charging: bool) -> Image.Image:
     else:
         fill = (200, 62, 62, 255)      # muted red
 
-    # Rounded square + 2px darker grey border
-    border_color = (120, 120, 120, 255)  # darker grey
-    d.rounded_rectangle([(0, 0), (size - 1, size - 1)], radius=5,
-                        fill=fill, outline=border_color, width=2)
+    border_color = (120, 120, 120, 255)  # darker grey border
+    radius = 7  # slightly larger for smoother curve
+
+    # Draw fill first
+    d.rounded_rectangle([(1, 1), (size - 2, size - 2)],
+                        radius=radius, fill=fill)
+
+    # Draw border separately so it stays crisp
+    d.rounded_rectangle([(0, 0), (size - 1, size - 1)],
+                        radius=radius, outline=border_color, width=2)
 
     # Text: two-digit percent
     txt = f"{int(percent):02d}"
@@ -33,20 +39,21 @@ def render_battery_icon(percent: int, charging: bool) -> Image.Image:
         except Exception:
             font = ImageFont.load_default()
 
-    # Centering math + vertical offset (lower = text moves UP)
-    v_pad_pct = -0.01  # negative pushes text upward ~2px
+    # Slight vertical offset to raise text 1px
+    v_pad_pct = -0.01
     bbox = d.textbbox((0, 0), txt, font=font, stroke_width=1)
     tw = bbox[2] - bbox[0]
     th = bbox[3] - bbox[1]
     tx = (size - tw) / 2 - bbox[0]
     ty = (size - th) / 2 - bbox[1] + (size * v_pad_pct)
 
-    # Shadow + white text (1px black stroke)
-    d.text((tx + 0.5, ty + 0.5), txt, font=font, fill=(0, 0, 0, 160), stroke_width=0)
+    # Shadow + white text (1px stroke)
+    d.text((tx + 0.5, ty + 0.5), txt, font=font, fill=(0, 0, 0, 160))
     d.text((tx, ty), txt, font=font, fill=(255, 255, 255, 255),
            stroke_width=1, stroke_fill=(0, 0, 0, 140))
 
     return img
+
 
 
 
