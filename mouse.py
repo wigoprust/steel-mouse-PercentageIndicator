@@ -6,73 +6,44 @@ from PIL import Image, ImageDraw
 from PIL import Image, ImageDraw, ImageFont
 
 def render_battery_icon(percent: int, charging: bool) -> Image.Image:
-    # Size: 24x24 works well on Win11; system will scale as needed
+    # Size: 24x24 works well on Win11; system will scale
     size = 24
     img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
 
-    # Colors by threshold (your request): green >50, yellow 25–50, red <25
+    # Colors by threshold
     if percent > 50:
-        fill = (70, 190, 80, 255)
+        fill = (70, 190, 80, 255)      # Green
     elif percent >= 25:
-        fill = (240, 180, 50, 255)
+        fill = (240, 180, 50, 255)     # Yellow
     else:
-        fill = (230, 80, 70, 255)
+        fill = (230, 80, 70, 255)      # Red
 
-    outline = (235, 235, 235, 255)
-    white = (255, 255, 255, 255)
-    shadow = (0, 0, 0, 160)
+    # Draw solid background
+    d.rectangle([(0, 0), (size, size)], fill=fill)
 
-    # Battery body
-    pad = 2
-    body = [pad, pad, size - (pad*2), size - (pad*2)]
-    d.rounded_rectangle(body, radius=4, outline=outline, width=2)
-
-    # Nub
-    nub_w = 4
-    nub_h = size // 3
-    nub_x = body[2] + 1
-    nub_y = body[1] + ((body[3]-body[1]) - nub_h) // 2
-    d.rectangle([nub_x, nub_y, nub_x + nub_w, nub_y + nub_h], fill=outline)
-
-    # Fill level
-    inner_pad = 4
-    inner = [body[0] + inner_pad, body[1] + inner_pad, body[2] - inner_pad, body[3] - inner_pad]
-    inner_w = inner[2] - inner[0]
-    fill_w = max(0, int(inner_w * max(0, min(100, percent)) / 100))
-    d.rectangle([inner[0], inner[1], inner[0] + fill_w, inner[3]], fill=fill)
-
-    # Optional lightning bolt when charging
-    if charging and percent < 100:
-        cx = (inner[0] + inner[2]) // 2
-        cy = (inner[1] + inner[3]) // 2
-        w = max(4, (inner[2]-inner[0]) // 3)
-        h = max(6, (inner[3]-inner[1]) // 2)
-        pts = [
-            (cx - w//3, cy - h//2), (cx, cy - h//2),
-            (cx - w//6, cy), (cx + w//3, cy),
-            (cx - w//6, cy + h//2), (cx - w//2, cy + h//2),
-            (cx, cy), (cx - w//3, cy - h//2)
-        ]
-        d.polygon(pts, fill=(245, 245, 245, 255))
-
-    # Percentage text “00”
+    # Text: percentage (two digits)
     txt = f"{int(percent):02d}"
-    # Try a readable Windows font; fall back to default
+
     try:
-        font = ImageFont.truetype("segoeuib.ttf", 17)  # Segoe UI Semibold if available
+        font = ImageFont.truetype("segoeuib.ttf", 17)  # Larger font
     except Exception:
         font = ImageFont.load_default()
 
     tw, th = d.textbbox((0, 0), txt, font=font)[2:]
-    tx = body[0] + ((body[2] - body[0]) - tw) / 2
-    ty = body[1] + ((body[3] - body[1]) - th) / 2
+    tx = (size - tw) / 2
+    ty = (size - th) / 2
 
-    # Shadow for contrast
-    d.text((tx+0.5, ty+0.5), txt, font=font, fill=shadow)
+    # Drop shadow for contrast
+    shadow = (0, 0, 0, 160)
+    d.text((tx + 0.5, ty + 0.5), txt, font=font, fill=shadow)
+
+    # White foreground text
+    white = (255, 255, 255, 255)
     d.text((tx, ty), txt, font=font, fill=white)
 
     return img
+
 
 # Our state variables
 last_update = None
