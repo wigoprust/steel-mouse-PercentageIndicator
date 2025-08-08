@@ -18,7 +18,7 @@ def render_battery_icon(percent: int, charging: bool) -> Image.Image:
     else:
         fill = (200, 62, 62, 255)      # muted red
 
-    border_color = (120, 120, 120, 255)  # darker grey border
+    border_color = (160, 160, 160, 255)  # darker grey border
     radius = 7  # slightly larger for smoother curve
 
     # Draw fill first
@@ -53,8 +53,6 @@ def render_battery_icon(percent: int, charging: bool) -> Image.Image:
            stroke_width=1, stroke_fill=(0, 0, 0, 140))
 
     return img
-
-
 
 
 
