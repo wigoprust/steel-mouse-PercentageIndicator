@@ -6,7 +6,7 @@ I like seeing the percentage by just glancing down at my taskbar.
 
 ## Acknowledgements
 
-- [yurtemre7] for the original app i based this off (https://github.com/yurtemre7)
+- [yurtemre7](https://github.com/yurtemre7) for the original app i based this off.
 - [flozz](https://github.com/flozz) for the `rivalcfg` library and the idea of a standalone Python executable.
 - [Pyenb](https://github.com/Pyenb) for rewrites.
 - [T-solidus-T](https://github.com/T-solidus-T) for improvements to the threads, icon & menu logic.
