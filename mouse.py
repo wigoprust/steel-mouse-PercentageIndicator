@@ -40,7 +40,7 @@ def render_battery_icon(percent: int, charging: bool) -> Image.Image:
             font = ImageFont.load_default()
 
     # Slight vertical offset to raise text 1px
-    v_pad_pct = -0.01
+    v_pad_pct = 0.03
     bbox = d.textbbox((0, 0), txt, font=font, stroke_width=1)
     tw = bbox[2] - bbox[0]
     th = bbox[3] - bbox[1]
