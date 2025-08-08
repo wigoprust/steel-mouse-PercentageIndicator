@@ -24,8 +24,8 @@ def render_battery_icon(percent: int, charging: bool) -> Image.Image:
     shadow = (0, 0, 0, 160)
 
     # Battery body
-    pad = 3
-    body = [pad, pad+1, size - (pad*3), size - (pad*3)]
+    pad = 2
+    body = [pad, pad, size - (pad*2), size - (pad*2)]
     d.rounded_rectangle(body, radius=4, outline=outline, width=2)
 
     # Nub
@@ -60,7 +60,7 @@ def render_battery_icon(percent: int, charging: bool) -> Image.Image:
     txt = f"{int(percent):02d}"
     # Try a readable Windows font; fall back to default
     try:
-        font = ImageFont.truetype("segoeuib.ttf", 13)  # Segoe UI Semibold if available
+        font = ImageFont.truetype("segoeuib.ttf", 17)  # Segoe UI Semibold if available
     except Exception:
         font = ImageFont.load_default()
 
