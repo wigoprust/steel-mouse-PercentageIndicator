@@ -6,57 +6,48 @@ from PIL import Image, ImageDraw
 from PIL import Image, ImageDraw, ImageFont
 
 def render_battery_icon(percent: int, charging: bool) -> Image.Image:
-    # 24x24 tray icon
     size = 24
     img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
 
-    # Muted colors (Windows-y)
-    # green (>50), yellow (25–50), red (<25)
+    # Muted colors
     if percent > 50:
-        fill = (25, 135, 84, 255)      # dark/muted green
+        fill = (25, 135, 84, 255)      # dark green
     elif percent >= 25:
-        fill = (222, 170, 12, 255)     # mustard yellow
+        fill = (222, 170, 12, 255)     # muted yellow
     else:
         fill = (200, 62, 62, 255)      # muted red
 
-    # Rounded square with thicker white border
-    radius = 7
-    d.rounded_rectangle(
-        [(0, 0), (size - 1, size - 1)],
-        radius=radius,
-        fill=fill,
-        outline=(255, 255, 255, 255),
-        width=2
-    )
+    # Rounded square + 2px light grey border
+    border_color = (200, 200, 200, 255)  # light grey
+    d.rounded_rectangle([(0, 0), (size - 1, size - 1)], radius=5,
+                        fill=fill, outline=border_color, width=2)
 
     # Text: two-digit percent
     txt = f"{int(percent):02d}"
-
-    # Try legible bold fonts; fall back safely
-    font = None
     try:
-        font = ImageFont.truetype("segoeuib.ttf", 18)  # Segoe UI Semibold
+        font = ImageFont.truetype("segoeuib.ttf", 19)
     except Exception:
         try:
-            font = ImageFont.truetype("arialbd.ttf", 17)  # Arial Bold
+            font = ImageFont.truetype("arialbd.ttf", 19)
         except Exception:
             font = ImageFont.load_default()
 
-    # Perfect centering using anchor="mm"
-    # (middle/middle of the given coordinates)
-    # Slight +0.5 vertical nudge for optical balance on tiny icons.
-    shadow = (0, 0, 0, 160)
-    white  = (255, 255, 255, 255)
-    cx, cy = size / 2, size / 2 + 0.5
+    # Centering math + adjustable vertical offset
+    v_pad_pct = 0.06  # increase to move text DOWN, decrease to move UP
+    bbox = d.textbbox((0, 0), txt, font=font, stroke_width=1)
+    tw = bbox[2] - bbox[0]
+    th = bbox[3] - bbox[1]
+    tx = (size - tw) / 2 - bbox[0]
+    ty = (size - th) / 2 - bbox[1] + (size * v_pad_pct)
 
-    # Shadow + white text with a 1px stroke to improve legibility
-    d.text((cx + 0.5, cy + 0.5), txt, font=font, fill=shadow,
-           anchor="mm", stroke_width=0)
-    d.text((cx, cy), txt, font=font, fill=white,
-           anchor="mm", stroke_width=1, stroke_fill=(0, 0, 0, 140))
+    # Shadow + white text (1px black stroke)
+    d.text((tx + 0.5, ty + 0.5), txt, font=font, fill=(0, 0, 0, 160), stroke_width=0)
+    d.text((tx, ty), txt, font=font, fill=(255, 255, 255, 255),
+           stroke_width=1, stroke_fill=(0, 0, 0, 140))
 
     return img
+
 
 
 
