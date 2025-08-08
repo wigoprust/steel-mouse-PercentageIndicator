@@ -6,53 +6,58 @@ from PIL import Image, ImageDraw
 from PIL import Image, ImageDraw, ImageFont
 
 def render_battery_icon(percent: int, charging: bool) -> Image.Image:
-    # Size: 24x24 works well on Win11; system will scale
+    # 24x24 tray icon
     size = 24
     img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
 
-    # Colors by threshold
+    # Muted colors (Windows-y)
+    # green (>50), yellow (25–50), red (<25)
     if percent > 50:
-        fill = (70, 190, 80, 255)      # Green
+        fill = (25, 135, 84, 255)      # dark/muted green
     elif percent >= 25:
-        fill = (240, 180, 50, 255)     # Yellow
+        fill = (222, 170, 12, 255)     # mustard yellow
     else:
-        fill = (230, 80, 70, 255)      # Red
+        fill = (200, 62, 62, 255)      # muted red
 
-    # Rounded rectangle background with thin white border
-    radius = 5
+    # Rounded square with thicker white border
+    radius = 7
     d.rounded_rectangle(
         [(0, 0), (size - 1, size - 1)],
         radius=radius,
         fill=fill,
         outline=(255, 255, 255, 255),
-        width=1
+        width=2
     )
 
-    # Text: percentage (two digits)
+    # Text: two-digit percent
     txt = f"{int(percent):02d}"
+
+    # Try legible bold fonts; fall back safely
+    font = None
     try:
-        font = ImageFont.truetype("segoeuib.ttf", 17)
+        font = ImageFont.truetype("segoeuib.ttf", 18)  # Segoe UI Semibold
     except Exception:
-        font = ImageFont.load_default()
+        try:
+            font = ImageFont.truetype("arialbd.ttf", 17)  # Arial Bold
+        except Exception:
+            font = ImageFont.load_default()
 
-    # Get text size and center properly
-    tw, th = d.textbbox((0, 0), txt, font=font)[2:]
-    tx = (size - tw) / 2
-    ty = (size - th) / 2
-
-    # Fine-tune vertical centering (nudges text slightly down if needed)
-    ty = round(ty) - 1  # adjust this number if still off by a pixel
-
-    # Drop shadow for contrast
+    # Perfect centering using anchor="mm"
+    # (middle/middle of the given coordinates)
+    # Slight +0.5 vertical nudge for optical balance on tiny icons.
     shadow = (0, 0, 0, 160)
-    d.text((tx + 0.5, ty + 0.5), txt, font=font, fill=shadow)
+    white  = (255, 255, 255, 255)
+    cx, cy = size / 2, size / 2 + 0.5
 
-    # White foreground text
-    white = (255, 255, 255, 255)
-    d.text((tx, ty), txt, font=font, fill=white)
+    # Shadow + white text with a 1px stroke to improve legibility
+    d.text((cx + 0.5, cy + 0.5), txt, font=font, fill=shadow,
+           anchor="mm", stroke_width=0)
+    d.text((cx, cy), txt, font=font, fill=white,
+           anchor="mm", stroke_width=1, stroke_fill=(0, 0, 0, 140))
 
     return img
+
 
 
 
