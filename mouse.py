@@ -12,7 +12,7 @@ def render_battery_icon(percent: int, charging: bool) -> Image.Image:
 
     # Colors (muted)
     if percent > 50:
-        fill = (25, 135, 84, 255)      # dark green
+        fill = (0, 128, 0, 255)      # dark green
     elif percent >= 25:
         fill = (222, 170, 12, 255)     # muted yellow
     else:
