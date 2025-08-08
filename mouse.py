@@ -18,8 +18,8 @@ def render_battery_icon(percent: int, charging: bool) -> Image.Image:
     else:
         fill = (200, 62, 62, 255)      # muted red
 
-    # Rounded square + 2px light grey border
-    border_color = (200, 200, 200, 255)  # light grey
+    # Rounded square + 2px darker grey border
+    border_color = (120, 120, 120, 255)  # darker grey
     d.rounded_rectangle([(0, 0), (size - 1, size - 1)], radius=5,
                         fill=fill, outline=border_color, width=2)
 
@@ -33,8 +33,8 @@ def render_battery_icon(percent: int, charging: bool) -> Image.Image:
         except Exception:
             font = ImageFont.load_default()
 
-    # Centering math + adjustable vertical offset
-    v_pad_pct = 0.06  # increase to move text DOWN, decrease to move UP
+    # Centering math + vertical offset (lower = text moves UP)
+    v_pad_pct = -0.02  # negative pushes text upward ~2px
     bbox = d.textbbox((0, 0), txt, font=font, stroke_width=1)
     tw = bbox[2] - bbox[0]
     th = bbox[3] - bbox[1]
@@ -47,6 +47,7 @@ def render_battery_icon(percent: int, charging: bool) -> Image.Image:
            stroke_width=1, stroke_fill=(0, 0, 0, 140))
 
     return img
+
 
 
 
