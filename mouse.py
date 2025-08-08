@@ -19,20 +19,30 @@ def render_battery_icon(percent: int, charging: bool) -> Image.Image:
     else:
         fill = (230, 80, 70, 255)      # Red
 
-    # Draw solid background
-    d.rectangle([(0, 0), (size, size)], fill=fill)
+    # Rounded rectangle background with thin white border
+    radius = 5
+    d.rounded_rectangle(
+        [(0, 0), (size - 1, size - 1)],
+        radius=radius,
+        fill=fill,
+        outline=(255, 255, 255, 255),
+        width=1
+    )
 
     # Text: percentage (two digits)
     txt = f"{int(percent):02d}"
-
     try:
-        font = ImageFont.truetype("segoeuib.ttf", 17)  # Larger font
+        font = ImageFont.truetype("segoeuib.ttf", 17)
     except Exception:
         font = ImageFont.load_default()
 
+    # Get text size and center properly
     tw, th = d.textbbox((0, 0), txt, font=font)[2:]
     tx = (size - tw) / 2
     ty = (size - th) / 2
+
+    # Fine-tune vertical centering (nudges text slightly down if needed)
+    ty = round(ty) - 1  # adjust this number if still off by a pixel
 
     # Drop shadow for contrast
     shadow = (0, 0, 0, 160)
@@ -43,6 +53,7 @@ def render_battery_icon(percent: int, charging: bool) -> Image.Image:
     d.text((tx, ty), txt, font=font, fill=white)
 
     return img
+
 
 
 # Our state variables
