@@ -10,7 +10,7 @@ def render_battery_icon(percent: int, charging: bool) -> Image.Image:
     img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
 
-    # Muted colors
+    # Colors (muted)
     if percent > 50:
         fill = (25, 135, 84, 255)      # dark green
     elif percent >= 25:
@@ -18,41 +18,36 @@ def render_battery_icon(percent: int, charging: bool) -> Image.Image:
     else:
         fill = (200, 62, 62, 255)      # muted red
 
-    border_color = (160, 160, 160, 255)  # darker grey border
-    radius = 7  # slightly larger for smoother curve
+    # Border + radius (clean corners)
+    border_color = (160, 160, 160, 255)
+    radius = 7
+    d.rounded_rectangle([(1, 1), (size - 2, size - 2)], radius=radius, fill=fill)
+    d.rounded_rectangle([(0, 0), (size - 1, size - 1)], radius=radius, outline=border_color, width=2)
 
-    # Draw fill first
-    d.rounded_rectangle([(1, 1), (size - 2, size - 2)],
-                        radius=radius, fill=fill)
-
-    # Draw border separately so it stays crisp
-    d.rounded_rectangle([(0, 0), (size - 1, size - 1)],
-                        radius=radius, outline=border_color, width=2)
-
-    # Text: two-digit percent
+    # Text setup (crisp)
     txt = f"{int(percent):02d}"
+    FONT_SIZE = 18   # try 18; if you want chunkier digits, test 20
     try:
-        font = ImageFont.truetype("segoeuib.ttf", 19)
+        font = ImageFont.truetype("arialbd.ttf", FONT_SIZE)       # Arial Bold = very clear
     except Exception:
         try:
-            font = ImageFont.truetype("arialbd.ttf", 19)
+            font = ImageFont.truetype("segoeuib.ttf", FONT_SIZE)  # Segoe UI Semibold fallback
         except Exception:
             font = ImageFont.load_default()
 
-    # Slight vertical offset to raise text 1px
-    v_pad_pct = 0.03
-    bbox = d.textbbox((0, 0), txt, font=font, stroke_width=1)
+    # Exact centering with pixel nudge (in pixels, not %)
+    v_pad_px = 1  # +down / -up; set 0 if you want true center, 2 if still a hair high
+    bbox = d.textbbox((0, 0), txt, font=font)
     tw = bbox[2] - bbox[0]
     th = bbox[3] - bbox[1]
-    tx = (size - tw) / 2 - bbox[0]
-    ty = (size - th) / 2 - bbox[1] + (size * v_pad_pct)
+    tx = int(round((size - tw) / 2 - bbox[0]))
+    ty = int(round((size - th) / 2 - bbox[1] + v_pad_px))
 
-    # Shadow + white text (1px stroke)
-    d.text((tx + 0.5, ty + 0.5), txt, font=font, fill=(0, 0, 0, 160))
-    d.text((tx, ty), txt, font=font, fill=(255, 255, 255, 255),
-           stroke_width=1, stroke_fill=(0, 0, 0, 140))
+    # Draw digits (no stroke, no shadow) for maximum sharpness
+    d.text((tx, ty), txt, font=font, fill=(255, 255, 255, 255))
 
     return img
+
 
 
 
